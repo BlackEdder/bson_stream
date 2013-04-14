@@ -21,6 +21,7 @@ SET (CMAKE_EXPORT_COMPILE_COMMANDS ON)
 SET (CMAKE_CXX_FLAGS "-std=c++11 -O2 -march=native -Wall ${CMAKE_CXX_FLAGS}")
 
 include_directories("include")
+include_directories("/usr/include/mongo")
 
 find_library( MONGO mongoclient )
 
