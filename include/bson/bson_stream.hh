@@ -18,6 +18,7 @@
 
 #include "bson/bson.h"
 
+
 template<class T>
 void operator>>( const mongo::BSONElement &bel, T &t ) {
 	bel.Val( t );
@@ -72,5 +73,26 @@ void operator>>( const mongo::BSONObj &bobj, std::map<K,V> &map ) {
 		map[el.fieldName()] = value;
 	}
 }
+
+/**
+ * Stream in
+ *
+ * YAML works as follows:
+ Emitter out;
+ out << Emitter::Key << "name";
+ out << Emitter::Value << "Ryan Braun";
+ out << Emitter::Key << "position";
+ out << Emitter::Value << "LF";
+ BSONobj bobj = out.obj();
+
+ I guess we should start with just building on BSONBuilder, which requires that 
+ a value could be any object, which then needs to be turned into a BSONElement, so
+ one first needs to support <<( BSONElement &bel, T &t )
+
+ It depends a bit on how BSONObjBuilder works if just adding my own classes 
+ to <<(BSONElement &bel, myclass &c ) will be enough, 
+ or do we need to use <<(BSONObjBuilder, myclass). If the second then it will be
+ cleaner to add <<(BSONObjBuilder, T) which in turn calls <<(BSONElement, T)
+ */
 
 #endif
