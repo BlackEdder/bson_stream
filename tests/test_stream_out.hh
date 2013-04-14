@@ -14,7 +14,6 @@ class test {
 			bel["a"] >> t.a;
 			bel["b"] >> t.b;
 		}
-
 };
 
 class TestOut : public CxxTest::TestSuite {
