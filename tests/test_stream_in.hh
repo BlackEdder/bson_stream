@@ -19,6 +19,7 @@ class test {
 
 class TestIn : public CxxTest::TestSuite {
 	public:
+
 		void testDouble() {
 			BSONObjBuilder bbuild;
 			bbuild << "a" << 1.0;

@@ -34,10 +34,11 @@ if(CXXTEST_FOUND)
 	if(NOT MONGO)
 		message( WARNING "Could not find mongoclient library. 
 		Will not compile the tests" )
-		enable_testing()
 	endif()
 
+
 	if (MONGO)
+		enable_testing()
 		CXXTEST_ADD_TEST(unittest_stream_out test_stream_out.cc
 			${CMAKE_CURRENT_SOURCE_DIR}/tests/test_stream_out.hh)
 		target_link_libraries( unittest_stream_out ${MONGO} )
@@ -45,6 +46,6 @@ if(CXXTEST_FOUND)
 		CXXTEST_ADD_TEST(unittest_stream_in test_stream_in.cc
 			${CMAKE_CURRENT_SOURCE_DIR}/tests/test_stream_in.hh)
 		target_link_libraries( unittest_stream_in ${MONGO} )
-		endif()
+	endif()
 endif()
 
