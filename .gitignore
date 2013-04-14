@@ -21,3 +21,6 @@ install_manifest.txt
 test_*.cc
 tags
 compile_commands.json
+*.pyc
+*.ninja
+.ninja_log

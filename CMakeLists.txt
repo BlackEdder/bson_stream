@@ -41,6 +41,10 @@ if(CXXTEST_FOUND)
 		CXXTEST_ADD_TEST(unittest_stream_out test_stream_out.cc
 			${CMAKE_CURRENT_SOURCE_DIR}/tests/test_stream_out.hh)
 		target_link_libraries( unittest_stream_out ${MONGO} )
-	endif()
+
+		CXXTEST_ADD_TEST(unittest_stream_in test_stream_in.cc
+			${CMAKE_CURRENT_SOURCE_DIR}/tests/test_stream_in.hh)
+		target_link_libraries( unittest_stream_in ${MONGO} )
+		endif()
 endif()
 
