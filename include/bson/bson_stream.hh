@@ -111,4 +111,12 @@ mongo::BSONObjBuilder &operator<<( mongo::BSONObjBuilder &bbuild,
 	return bbuild;
 }
 
+template<class K, class V>
+mongo::BSONObjBuilder &operator<<( mongo::BSONObjBuilderValueStream &bbuild, 
+		const std::map<K,V> &map ) { 
+	mongo::BSONObjBuilder b;
+	for ( auto pair : map )
+		b << pair.first << pair.second;
+	return bbuild << b.obj();
+}
 #endif

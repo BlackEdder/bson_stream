@@ -42,4 +42,13 @@ class TestIn : public CxxTest::TestSuite {
 			BSONObj bobj = BSONObjBuilder().append("a", 1.0).obj();
 			TS_ASSERT_EQUALS( bobj, bbuild.obj() );
 		}
+
+		void testMapAsValue() {
+			std::map<std::string, double> mymap = {{"a", 1.0}};
+			BSONObjBuilder bbuild;
+			bbuild << "map" << mymap;
+			BSONObj bobj = BSONObjBuilder().append( "map",
+				BSONObjBuilder().append("a", 1.0).obj() ).obj();
+			TS_ASSERT_EQUALS( bobj, bbuild.obj() );
+		}
 };
