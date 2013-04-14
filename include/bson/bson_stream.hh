@@ -95,4 +95,7 @@ void operator>>( const mongo::BSONObj &bobj, std::map<K,V> &map ) {
  cleaner to add <<(BSONObjBuilder, T) which in turn calls <<(BSONElement, T)
  */
 
+template<class K, class V>
+mongo::BSONObjBuilder &operator<<( mongo::BSONObjBuilder &bbuild, const std::map<K,V> &mymap ) { return bbuild; }
+
 #endif

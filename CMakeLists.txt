@@ -25,6 +25,12 @@ include_directories("/usr/include/mongo")
 
 find_library( MONGO mongoclient )
 
+set(BOOST_LIBS thread system filesystem )
+find_package(Boost COMPONENTS ${BOOST_LIBS} REQUIRED)
+
+SET(LIBS "${MONGO};${Boost_LIBRARIES}")
+
+
 SET (CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
 install (FILES include/bson/bson_stream.h
 	DESTINATION include/bson)
@@ -42,11 +48,11 @@ if(CXXTEST_FOUND)
 		enable_testing()
 		CXXTEST_ADD_TEST(unittest_stream_out test_stream_out.cc
 			${CMAKE_CURRENT_SOURCE_DIR}/tests/test_stream_out.hh)
-		target_link_libraries( unittest_stream_out ${MONGO} )
+		target_link_libraries( unittest_stream_out ${LIBS}; )
 
 		CXXTEST_ADD_TEST(unittest_stream_in test_stream_in.cc
 			${CMAKE_CURRENT_SOURCE_DIR}/tests/test_stream_in.hh)
-		target_link_libraries( unittest_stream_in ${MONGO} )
+		target_link_libraries( unittest_stream_in ${LIBS}; )
 	endif()
 endif()
 
