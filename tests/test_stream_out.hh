@@ -45,8 +45,35 @@ class TestOut : public CxxTest::TestSuite {
 			std::vector<double> b;
 			bobj["b"] >> b;
 			TS_ASSERT_EQUALS( b.size(), 2 );
+
 			TS_ASSERT_EQUALS( b[0], 1.1 );
 			TS_ASSERT_EQUALS( b[1], -2.9 );
+		}
+
+		void testSimpleSet() {
+			std::set<double> b;
+			bobj["b"] >> b;
+
+			std::set<double> compare = { 1.1, -2.9 };
+			TS_ASSERT_EQUALS( b.size(), 2 );
+			TS_ASSERT_EQUALS( b, compare );
+		}
+
+		void testSimpleList() {
+			std::list<double> b;
+			bobj["b"] >> b;
+
+			std::list<double> compare = { 1.1, -2.9 };
+			TS_ASSERT_EQUALS( b.size(), 2 );
+			TS_ASSERT_EQUALS( b, compare );
+		}
+
+		void testObjectToMap() {
+			BSONObj bobj = BSONObjBuilder().append("a", 2.01).append("b", 3.1 ).obj();
+			std::map<std::string, double> mymap;
+			bobj >> mymap;
+			TS_ASSERT_EQUALS( mymap["a"], 2.01 );
+			TS_ASSERT_EQUALS( mymap["b"], 3.1 );
 		}
 
 		void testClass() {
