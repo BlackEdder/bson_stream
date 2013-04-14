@@ -96,6 +96,19 @@ void operator>>( const mongo::BSONObj &bobj, std::map<K,V> &map ) {
  */
 
 template<class K, class V>
-mongo::BSONObjBuilder &operator<<( mongo::BSONObjBuilder &bbuild, const std::map<K,V> &mymap ) { return bbuild; }
+mongo::BSONObjBuilder &operator<<( mongo::BSONObjBuilder &bbuild, 
+		const std::pair<K,V> &pair ) { 
+	bbuild << pair.first << pair.second;
+	return bbuild;
+}
+
+template<class K, class V>
+mongo::BSONObjBuilder &operator<<( mongo::BSONObjBuilder &bbuild, 
+		const std::map<K,V> &map ) { 
+	for ( auto pair : map ) {
+		bbuild << pair;
+	}
+	return bbuild;
+}
 
 #endif
