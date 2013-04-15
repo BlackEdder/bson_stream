@@ -48,6 +48,15 @@ class TestIn : public CxxTest::TestSuite {
 			TS_ASSERT_EQUALS( bobj, bbuild.obj() );
 		}
 
+		void testMemoryManagement() {
+			BSONEmitter bbuild;
+			bbuild << "a" << 1.0 << "b" << 2.1;
+			auto bobj = bbuild.obj();
+			std::cout << bobj << std::endl; // This will crash if something went wrong
+			std::cout << bobj << std::endl; // This will crash if something went wrong
+		}
+
+
 
 	/*	void xtestVector() {
 			std::vector<double> v = { 1.1, -2.1 };

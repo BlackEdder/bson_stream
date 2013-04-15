@@ -124,8 +124,12 @@ class BSONEmitter {
 		{}
 
 		BSONObj obj() {
-			return builder->obj();
+			auto bobj = builder->obj();
+			// This invalidates builder any way, so we can delete it
+			delete builder;
+			return bobj;
 		}
+
 		BSONValueEmitter &append( const std::string &name ) {
 		 	v_emitter.builder.endField( name.c_str() );
 			return v_emitter;
