@@ -31,7 +31,7 @@ void operator>>( const mongo::BSONElement &bel, double &t ) {
 template<class T>
 void operator>>( const mongo::BSONElement &bel, std::vector<T> &v ) {
 	auto barr = bel.Array();
-	for ( auto bson_el : barr ) {
+	for ( auto & bson_el : barr ) {
 		// This will only work if T has an empty constructor T()
 		// I am not aware of a more general way of doing this though
 		T el;
@@ -43,7 +43,7 @@ void operator>>( const mongo::BSONElement &bel, std::vector<T> &v ) {
 template<class T>
 void operator>>( const mongo::BSONElement &bel, std::list<T> &v ) {
 	auto barr = bel.Array();
-	for ( auto bson_el : barr ) {
+	for ( auto & bson_el : barr ) {
 		// This will only work if T has an empty constructor T()
 		// I am not aware of a more general way of doing this though
 		T el;
@@ -55,7 +55,7 @@ void operator>>( const mongo::BSONElement &bel, std::list<T> &v ) {
 template<class T>
 void operator>>( const mongo::BSONElement &bel, std::set<T> &v ) {
 	auto barr = bel.Array();
-	for ( auto bson_el : barr ) {
+	for ( auto & bson_el : barr ) {
 		// This will only work if T has an empty constructor T()
 		// I am not aware of a more general way of doing this though
 		T el;
@@ -302,7 +302,7 @@ template<class T>
 mongo::BSONEmitter &operator<<( mongo::BSONValueEmitter &bbuild, 
 		const std::vector<T> &vt ) { 
 	mongo::BSONArrayEmitter b;
-	for ( T el : vt ) {
+	for ( const T &el : vt ) {
 		b << el;
 	}
 	return bbuild.append( b.arr() );
@@ -312,7 +312,7 @@ template<class T>
 mongo::BSONEmitter &operator<<( mongo::BSONValueEmitter &bbuild, 
 		const std::set<T> &vt ) { 
 	mongo::BSONArrayEmitter b;
-	for ( T el : vt ) {
+	for ( const T &el : vt ) {
 		b << el;
 	}
 	return bbuild.append( b.arr() );
@@ -322,7 +322,7 @@ template<class T>
 mongo::BSONEmitter &operator<<( mongo::BSONValueEmitter &bbuild, 
 		const std::list<T> &vt ) { 
 	mongo::BSONArrayEmitter b;
-	for ( T el : vt ) {
+	for ( const T &el : vt ) {
 		b << el;
 	}
 	return bbuild.append( b.arr() );
