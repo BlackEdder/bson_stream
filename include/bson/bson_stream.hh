@@ -174,16 +174,41 @@ namespace mongo {
 	};
 
 };
+
+//! Turn pair into a BSONObjBuilder
+template<class K, class V>
+mongo::BSONObjBuilder &operator<<( 
+		mongo::BSONObjBuilder &bbuild, const std::pair<K, V> &t ) { 
+ 	bbuild << t.first << t.second;
+	return bbuild;
+}
+
+//! Turn map into a BSONObjBuilder
+template<class K, class V>
+mongo::BSONObjBuilder &operator<<( 
+		mongo::BSONObjBuilder &bbuild, const std::map<K, V> &t ) { 
+	for (const std::pair<K,V> &p : t )
+		bbuild << p;
+	return bbuild;
+}
+
 // Would prefer to define these as friend, but not possible due to 
 // BSONValueEmitter not being define at that point in the header file 
 template<class T>
 mongo::BSONValueEmitter &operator<<( mongo::BSONEmitter &emitter, const T &t ) {
 	return emitter.append( t );
+} 
+
+//! Add map easily to an emitter, map keys become keys in the resulting BSONObj
+template<class K, class V>
+mongo::BSONEmitter &operator<<( mongo::BSONEmitter &emitter, const std::map<K,V> &map ) {
+	(*emitter.builder) << map;
+	return emitter;
 }
 
 //! For normal classes we need to convert them to an BSONObj first
 //
-//Below we override all the normal types
+// Below we override all the normal types
 template<class T>
 mongo::BSONEmitter &operator<<( mongo::BSONValueEmitter &emitter, const T &t ) {
 	mongo::BSONObjBuilder b;

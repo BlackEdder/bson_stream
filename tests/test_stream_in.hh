@@ -82,22 +82,22 @@ class TestIn : public CxxTest::TestSuite {
 			TS_ASSERT_EQUALS( bobj, bbuild.obj() );
 		}
 
-		/*void xtestMap() {
+		void testMap() {
 			std::map<std::string, double> mymap = {{"a", 1.0}};
-			BSONObjBuilder bbuild;
+			BSONEmitter bbuild;
 			bbuild << mymap;
 			BSONObj bobj = BSONObjBuilder().append("a", 1.0).obj();
 			TS_ASSERT_EQUALS( bobj, bbuild.obj() );
 		}
 
-		void xtestMapAsValue() {
+		void testMapAsValue() {
 			std::map<std::string, double> mymap = {{"a", 1.0}};
-			BSONObjBuilder bbuild;
+			BSONEmitter bbuild;
 			bbuild << "map" << mymap;
 			BSONObj bobj = BSONObjBuilder().append( "map",
 				BSONObjBuilder().append("a", 1.0).obj() ).obj();
 			TS_ASSERT_EQUALS( bobj, bbuild.obj() );
-		}*/
+		}
 
 		void testVectorAsValue() {
 			std::vector<double> vd = {-1.1, 1.0};
