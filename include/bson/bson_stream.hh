@@ -307,4 +307,25 @@ mongo::BSONEmitter &operator<<( mongo::BSONValueEmitter &bbuild,
 	}
 	return bbuild.append( b.arr() );
 }
+
+template<class T>
+mongo::BSONEmitter &operator<<( mongo::BSONValueEmitter &bbuild, 
+		const std::set<T> &vt ) { 
+	mongo::BSONArrayEmitter b;
+	for ( T el : vt ) {
+		b << el;
+	}
+	return bbuild.append( b.arr() );
+}
+
+template<class T>
+mongo::BSONEmitter &operator<<( mongo::BSONValueEmitter &bbuild, 
+		const std::list<T> &vt ) { 
+	mongo::BSONArrayEmitter b;
+	for ( T el : vt ) {
+		b << el;
+	}
+	return bbuild.append( b.arr() );
+}
+
 #endif

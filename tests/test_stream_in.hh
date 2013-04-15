@@ -113,6 +113,17 @@ class TestIn : public CxxTest::TestSuite {
 			helpTypes( vs );
 		}
 
+		void testSetAsValue() {
+			std::set<std::string> vs = { "Hello world!", "Bla" };
+			helpTypes( vs );
+		}
+
+		void testListAsValue() {
+			std::list<std::string> vs = { "Hello world!", "Bla" };
+			helpTypes( vs );
+		}
+
+
 		void testTestClassAsValue() {
 			test t(-1.1, 1.0);
 			BSONEmitter bbuild;
