@@ -181,16 +181,39 @@ mongo::BSONValueEmitter &operator<<( mongo::BSONEmitter &emitter, const T &t ) {
 	return emitter.append( t );
 }
 
+//! For normal classes we need to convert them to an BSONObj first
+//
+//Below we override all the normal types
 template<class T>
 mongo::BSONEmitter &operator<<( mongo::BSONValueEmitter &emitter, const T &t ) {
+	mongo::BSONObjBuilder b;
+	b << t;
+	return emitter.append( b.obj() );
+}
+
+/**
+ * \brief Override for standard types (as opposed to classes/objects)
+ */
+mongo::BSONEmitter &operator<<( mongo::BSONValueEmitter &emitter, const double &t ) {
 	return emitter.append( t );
 }
 
-// Need to differentiate different cases of array builder:
-// BSONArrayBuilder << double/long etc -> just add it
-// BSONArrayBuilder << otherwise, convert it to bsonobj using bsonbuilder and then add it
-//
-// This is actually the main problem isn't it... so get it working :)
+mongo::BSONEmitter &operator<<( mongo::BSONValueEmitter &emitter, const long long &t ) {
+	return emitter.append( t );
+}
+
+mongo::BSONEmitter &operator<<( mongo::BSONValueEmitter &emitter, const bool &t ) {
+	return emitter.append( t );
+}
+
+
+mongo::BSONEmitter &operator<<( mongo::BSONValueEmitter &emitter, const int &t ) {
+	return emitter.append( t );
+}
+
+mongo::BSONEmitter &operator<<( mongo::BSONValueEmitter &emitter, const std::string &t ) {
+	return emitter.append( t );
+}
 
 /*
 template<class K, class V>
@@ -240,6 +263,7 @@ mongo::BSONObjBuilder &operator<<( mongo::BSONObjBuilderValueStream &bbuild,
 	}
 	return bbuild << b.arr();
 }*/
+
 //template<class T>
 template<class T>
 mongo::BSONArrayEmitter &operator<<( mongo::BSONArrayEmitter &barr,

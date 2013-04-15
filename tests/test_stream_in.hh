@@ -28,12 +28,42 @@ class test {
 class TestIn : public CxxTest::TestSuite {
 	public:
 
+		template<class T>
+		void helpTypes( const T &t ) {
+			BSONEmitter bbuild;
+			bbuild << "a" << t;
+			BSONObj bobj = BSONObjBuilder().append("a", t).obj();
+			TS_ASSERT_EQUALS( bobj, bbuild.obj() );
+		}
+
 		void testDouble() {
 			BSONEmitter bbuild;
 			bbuild << "a" << 1.0;
 			BSONObj bobj = BSONObjBuilder().append("a", 1.0).obj();
 			TS_ASSERT_EQUALS( bobj, bbuild.obj() );
 		}
+
+		void testTypes2() {
+			BSONEmitter bbuild;
+			long long v = 1;
+			bbuild << "a" << v;
+			BSONObj bobj = BSONObjBuilder().append("a", v).obj();
+			TS_ASSERT_EQUALS( bobj, bbuild.obj() );
+		}
+
+		void testTypes() {
+			long long v = 1;
+			helpTypes( v );
+			bool b = true;
+			helpTypes( b );
+			int i = 2;
+			helpTypes( i );
+			double d = 2.1;
+			helpTypes( d );
+			std::string s = "Hello world!";
+			helpTypes( s );
+		}
+
 
 		void testTwoDouble() {
 			BSONEmitter bbuild;
@@ -86,14 +116,15 @@ class TestIn : public CxxTest::TestSuite {
 			TS_ASSERT_EQUALS( bobj, bbuild.obj() );
 		}
 
-		void xtestTestClassAsValue() {
+		void testTestClassAsValue() {
 			test t(-1.1, 1.0);
-			BSONObjBuilder bbuild;
-			//bbuild << "test" << t;
+			BSONEmitter bbuild;
+			bbuild << "test" << t;
+			auto obj = bbuild.obj();
 			BSONObj bobj = BSONObjBuilder().append( "test", 
 					BSONObjBuilder().append(
 						"a", t.a).append( "b", t.b ).obj()).obj();
-			TS_ASSERT_EQUALS( bobj, bbuild.obj() );
+			TS_ASSERT_EQUALS( bobj, obj );
 		}
 
 		void testTestClassAsVector() {
@@ -101,7 +132,6 @@ class TestIn : public CxxTest::TestSuite {
 			BSONEmitter bbuild;
 			bbuild << "test" << vt;
 			auto obj = bbuild.obj();
-			std::cout << obj << std::endl;
 			BSONObj bobj = BSONObjBuilder().append( "test", 
 					BSONArrayBuilder()
 					.append( 
