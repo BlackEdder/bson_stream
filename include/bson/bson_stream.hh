@@ -95,6 +95,62 @@ void operator>>( const mongo::BSONObj &bobj, std::map<K,V> &map ) {
  cleaner to add <<(BSONObjBuilder, T) which in turn calls <<(BSONElement, T)
  */
 
+
+namespace mongo {
+/**
+ * \brief Define an emitter for BSONObjects
+ *
+ * Behaviour is partly based on BSONObjBuilder, but different enough that
+ * we need a separate class
+ */
+class BSONEmitter {
+	public:
+		BSONEmitter() : v_emitter( this ) {}
+		BSONEmitter( BSONObjBuilder *builder ) 
+			: builder( builder ), v_emitter( this )
+		{}
+
+		BSONObj obj() {
+			return builder->obj();
+		}
+		BSONValueEmitter &append( const StringData &name ) {
+		 	v_emitter.builder.endField( name );
+			return v_emitter;
+		}
+
+		BSONObjBuilder *builder;
+		BSONValueEmitter v_emitter;
+};
+
+class BSONValueEmitter {
+	public:
+		BSONValueEmitter( BSONEmitter *pEmitter ) 
+			: pEmitter( pEmitter ), builder( pEmitter.builder ) {}
+
+		template<class T>
+		BSONEmitter &append( const T &t ) {
+			pEmitter->builder = builder.append( t );
+			return pEmitter;
+		}
+
+		BSONObjBuilderValueStream builder;
+		BSONEmitter *pEmitter;
+};
+};
+
+// Would prefer to define these as friend, but not possible due to 
+// BSONValueEmitter not being define at that point in the header file 
+template<class T>
+mongo::BSONValueEmitter &operator<<( mongo::BSONEmitter &emitter, const T &t ) {
+	return emitter.append( t );
+}
+
+template<class T>
+mongo::BSONEmitter &operator<<( mongo::BSONValueEmitter &emitter, const T &t ) {
+	return emitter.append( t );
+}
+
+/*
 template<class K, class V>
 mongo::BSONObjBuilder &operator<<( mongo::BSONObjBuilder &bbuild, 
 		const std::pair<K,V> &pair ) { 
@@ -111,6 +167,20 @@ mongo::BSONObjBuilder &operator<<( mongo::BSONObjBuilder &bbuild,
 	return bbuild;
 }
 
+mongo::BSONObjBuilder &operator<<( 
+				mongo::BSONObjBuilderValueStream &bbuild, const double d ) { 
+	return bbuild << d;
+}
+
+template<class T>
+mongo::BSONObjBuilder &operator<<( 
+				mongo::BSONObjBuilderValueStream &bbuild, const T &t ) { 
+	mongo::BSONObjBuilder bob;
+	bob << t;
+	return bbuild << bob.obj();
+}
+
+
 template<class K, class V>
 mongo::BSONObjBuilder &operator<<( mongo::BSONObjBuilderValueStream &bbuild, 
 		const std::map<K,V> &map ) { 
@@ -119,4 +189,25 @@ mongo::BSONObjBuilder &operator<<( mongo::BSONObjBuilderValueStream &bbuild,
 		b << pair.first << pair.second;
 	return bbuild << b.obj();
 }
+
+mongo::BSONObjBuilder &operator<<( mongo::BSONObjBuilderValueStream &bbuild, 
+		const std::vector<double> &vt ) { 
+	mongo::BSONArrayBuilder b;
+	for ( auto el : vt ) {
+		b << el;
+	}
+	return bbuild << b.arr();
+}
+
+template<class T>
+mongo::BSONObjBuilder &operator<<( mongo::BSONObjBuilderValueStream &bbuild, 
+		const std::vector<T> &vt ) { 
+	mongo::BSONArrayBuilder b;
+	for ( T el : vt ) {
+		mongo::BSONObjBuilder bob;
+		bob << el;
+		b << bob.obj();
+	}
+	return bbuild << b.arr();
+}*/
 #endif
