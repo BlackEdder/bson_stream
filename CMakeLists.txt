@@ -47,10 +47,12 @@ if(CXXTEST_FOUND)
 	if (MONGO)
 		enable_testing()
 		CXXTEST_ADD_TEST(unittest_stream_out test_stream_out.cc
+			include/bson/bson_stream.hh
 			${CMAKE_CURRENT_SOURCE_DIR}/tests/test_stream_out.hh)
 		target_link_libraries( unittest_stream_out ${LIBS}; )
 
 		CXXTEST_ADD_TEST(unittest_stream_in test_stream_in.cc
+			include/bson/bson_stream.hh
 			${CMAKE_CURRENT_SOURCE_DIR}/tests/test_stream_in.hh)
 		target_link_libraries( unittest_stream_in ${LIBS}; )
 	endif()
