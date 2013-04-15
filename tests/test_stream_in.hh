@@ -30,6 +30,12 @@ class test2 {
 		test2() 
 			: test_vector( { test( 1.0, 0.1 ) } ), double_vector( { 1.0, 0.1 } ) {}
 
+		friend void operator>>( const mongo::BSONElement &bel, test2 &t ) {
+			bel["test_vector"] >> t.test_vector;
+			bel["double_vector"] >> t.double_vector;
+		} 
+
+
 		friend mongo::BSONEmitter &operator<<( 
 				mongo::BSONEmitter &bbuild, const test2 &t ) { 
 			bbuild << "double_vector" << t.double_vector; 
@@ -181,8 +187,14 @@ class TestIn : public CxxTest::TestSuite {
 
 		void testTestClassTest2() {
 			BSONEmitter bbuild;
-			bbuild << "test2" << test2();
+			test2 t = test2();
+			bbuild << "test2" << t;
 			auto obj = bbuild.obj();
 			std::cout << obj << std::endl;
+			test2 t2;
+			t2.test_vector.push_back( test(0,0) );
+			TS_ASSERT_DIFFERS( t2.test_vector.size(), t.test_vector.size() );
+			obj["test2"] >> t2;
+			TS_ASSERT_EQUALS( t2.test_vector.size(), t.test_vector.size() );
 		}
 };
