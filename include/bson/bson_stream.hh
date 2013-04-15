@@ -273,6 +273,31 @@ mongo::BSONArrayEmitter &operator<<( mongo::BSONArrayEmitter &barr,
 	return barr.append( b.obj() );
 }
 
+mongo::BSONArrayEmitter &operator<<( mongo::BSONArrayEmitter &barr,
+		const double &t ) {
+	return barr.append( t );
+}
+
+mongo::BSONArrayEmitter &operator<<( mongo::BSONArrayEmitter &barr,
+		const long long &t ) {
+	return barr.append( t );
+}
+
+mongo::BSONArrayEmitter &operator<<( mongo::BSONArrayEmitter &barr,
+		const bool &t ) {
+	return barr.append( t );
+}
+
+mongo::BSONArrayEmitter &operator<<( mongo::BSONArrayEmitter &barr,
+		const int &t ) {
+	return barr.append( t );
+}
+
+mongo::BSONArrayEmitter &operator<<( mongo::BSONArrayEmitter &barr,
+		const std::string &t ) {
+	return barr.append( t );
+}
+
 template<class T>
 mongo::BSONEmitter &operator<<( mongo::BSONValueEmitter &bbuild, 
 		const std::vector<T> &vt ) { 

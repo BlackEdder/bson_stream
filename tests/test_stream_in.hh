@@ -43,14 +43,6 @@ class TestIn : public CxxTest::TestSuite {
 			TS_ASSERT_EQUALS( bobj, bbuild.obj() );
 		}
 
-		void testTypes2() {
-			BSONEmitter bbuild;
-			long long v = 1;
-			bbuild << "a" << v;
-			BSONObj bobj = BSONObjBuilder().append("a", v).obj();
-			TS_ASSERT_EQUALS( bobj, bbuild.obj() );
-		}
-
 		void testTypes() {
 			long long v = 1;
 			helpTypes( v );
@@ -82,15 +74,15 @@ class TestIn : public CxxTest::TestSuite {
 
 
 
-	/*	void xtestVector() {
+		void testVector() {
 			std::vector<double> v = { 1.1, -2.1 };
-			BSONObjBuilder bbuild;
+			BSONEmitter bbuild;
 			bbuild << "a" << v;
 			BSONObj bobj = BSONObjBuilder().append("a", v).obj();
 			TS_ASSERT_EQUALS( bobj, bbuild.obj() );
 		}
 
-		void xtestMap() {
+		/*void xtestMap() {
 			std::map<std::string, double> mymap = {{"a", 1.0}};
 			BSONObjBuilder bbuild;
 			bbuild << mymap;
@@ -108,12 +100,17 @@ class TestIn : public CxxTest::TestSuite {
 		}*/
 
 		void testVectorAsValue() {
-			std::vector<double> v = {-1.1, 1.0};
-			BSONObjBuilder bbuild;
-			bbuild << "a" << v;
-			BSONObj bobj = BSONObjBuilder().append( "a", v
-				).obj();
-			TS_ASSERT_EQUALS( bobj, bbuild.obj() );
+			std::vector<double> vd = {-1.1, 1.0};
+			helpTypes( vd );
+			std::vector<long long> vl = {1, 2};
+			helpTypes( vl );
+
+			std::vector<bool> vb = { true, true };
+			helpTypes( vb );
+			std::vector<int> vi = {1, 2};
+			helpTypes( vi );
+			std::vector<std::string> vs = { "Hello world!", "Bla" };
+			helpTypes( vs );
 		}
 
 		void testTestClassAsValue() {
