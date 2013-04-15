@@ -10,18 +10,10 @@ class test {
 		test() {};
 		test( double a, double b ) : a(a), b(b) {}
 
-		friend void operator>>( const BSONElement &bel, test &t ) {
+		friend void operator>>( const mongo::BSONElement &bel, test &t ) {
 			bel["a"] >> t.a;
 			bel["b"] >> t.b;
 		} 
-
-		/*friend mongo::BSONObjBuilder &operator<<( 
-				mongo::BSONObjBuilderValueStream &bbuild, const test &t ) { 
-			mongo::BSONObjBuilder b;
-			b << "a" << t.a; 
-			b << "b" << t.b;
-			return bbuild << b.obj();
-		}*/
 
 		friend mongo::BSONObjBuilder &operator<<( 
 				mongo::BSONObjBuilder &bbuild, const test &t ) { 
@@ -30,6 +22,8 @@ class test {
 			return bbuild;
 		}
 };
+
+
 
 class TestIn : public CxxTest::TestSuite {
 	public:
@@ -81,9 +75,9 @@ class TestIn : public CxxTest::TestSuite {
 			BSONObj bobj = BSONObjBuilder().append( "map",
 				BSONObjBuilder().append("a", 1.0).obj() ).obj();
 			TS_ASSERT_EQUALS( bobj, bbuild.obj() );
-		}
+		}*/
 
-		void xtestVectorAsValue() {
+		void testVectorAsValue() {
 			std::vector<double> v = {-1.1, 1.0};
 			BSONObjBuilder bbuild;
 			bbuild << "a" << v;
@@ -95,17 +89,19 @@ class TestIn : public CxxTest::TestSuite {
 		void xtestTestClassAsValue() {
 			test t(-1.1, 1.0);
 			BSONObjBuilder bbuild;
-			bbuild << "test" << t;
+			//bbuild << "test" << t;
 			BSONObj bobj = BSONObjBuilder().append( "test", 
 					BSONObjBuilder().append(
 						"a", t.a).append( "b", t.b ).obj()).obj();
 			TS_ASSERT_EQUALS( bobj, bbuild.obj() );
 		}
 
-		void xtestTestClassAsVector() {
+		void testTestClassAsVector() {
 			std::vector<test> vt = { test(-1.1, 1.0), test( -2.0, -1.1 ) };
-			BSONObjBuilder bbuild;
+			BSONEmitter bbuild;
 			bbuild << "test" << vt;
+			auto obj = bbuild.obj();
+			std::cout << obj << std::endl;
 			BSONObj bobj = BSONObjBuilder().append( "test", 
 					BSONArrayBuilder()
 					.append( 
@@ -113,8 +109,8 @@ class TestIn : public CxxTest::TestSuite {
 					.append( 
 						BSONObjBuilder().append( "a", vt[1].a).append( "b", vt[1].b ).obj())
 					.arr()).obj();
-			TS_ASSERT_EQUALS( bobj, bbuild.obj() );
-		}*/
+			TS_ASSERT_EQUALS( bobj, obj );
+		}
 
 
 };

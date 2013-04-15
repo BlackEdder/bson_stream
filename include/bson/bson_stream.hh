@@ -97,58 +97,81 @@ void operator>>( const mongo::BSONObj &bobj, std::map<K,V> &map ) {
 
 
 namespace mongo {
-class BSONEmitter;
+	class BSONEmitter;
 
-class BSONValueEmitter {
-	public:
-		BSONValueEmitter( BSONEmitter *pEmitter );
+	class BSONValueEmitter {
+		public:
+			BSONValueEmitter( BSONEmitter *pEmitter );
 
-		template<class T>
-		BSONEmitter &append( const T &t );
+			template<class T>
+				BSONEmitter &append( const T &t );
 
-		BSONEmitter *pEmitter;
-		BSONObjBuilderValueStream builder;
-};
+			BSONEmitter *pEmitter;
+			BSONObjBuilderValueStream builder;
+	};
 
-/**
- * \brief Define an emitter for BSONObjects
- *
- * Behaviour is partly based on BSONObjBuilder, but different enough that
- * we need a separate class
- */
-class BSONEmitter {
-	public:
-		BSONEmitter() : builder( new BSONObjBuilder() ), v_emitter( this ) {}
-		BSONEmitter( BSONObjBuilder *builder ) 
-			: builder( builder ), v_emitter( this )
-		{}
+	/**
+	 * \brief Define an emitter for BSONObjects
+	 *
+	 * Behaviour is partly based on BSONObjBuilder, but different enough that
+	 * we need a separate class
+	 */
+	class BSONEmitter {
+		public:
+			BSONEmitter() : builder( new BSONObjBuilder() ), v_emitter( this ) {}
+			BSONEmitter( BSONObjBuilder *builder ) 
+				: builder( builder ), v_emitter( this )
+			{}
 
-		BSONObj obj() {
-			auto bobj = builder->obj();
-			// This invalidates builder any way, so we can delete it
-			delete builder;
-			return bobj;
+			BSONObj obj() {
+				auto bobj = builder->obj();
+				// This invalidates builder any way, so we can delete it
+				delete builder;
+				return bobj;
+			}
+
+			BSONValueEmitter &append( const std::string &name ) {
+				v_emitter.builder.endField( name.c_str() );
+				return v_emitter;
+			}
+
+			BSONValueEmitter &append( const char *name ) {
+				v_emitter.builder.endField( name );
+				return v_emitter;
+			}
+
+
+			BSONObjBuilder *builder;
+			BSONValueEmitter v_emitter;
+	};
+
+	BSONValueEmitter::BSONValueEmitter( BSONEmitter *pEmitter ) 
+		: pEmitter( pEmitter ), builder( pEmitter->builder ) {
 		}
-
-		BSONValueEmitter &append( const std::string &name ) {
-		 	v_emitter.builder.endField( name.c_str() );
-			return v_emitter;
-		}
-
-		BSONObjBuilder *builder;
-		BSONValueEmitter v_emitter;
-};
-
-BSONValueEmitter::BSONValueEmitter( BSONEmitter *pEmitter ) 
-	: pEmitter( pEmitter ), builder( pEmitter->builder ) {
-	}
 
 	template<class T>
-	BSONEmitter &BSONValueEmitter::append( const T &t ) {
-		//pEmitter->builder->append( t );
-		pEmitter->builder = &(builder << t);
-		return (*pEmitter);
-	}
+		BSONEmitter &BSONValueEmitter::append( const T &t ) {
+			//pEmitter->builder->append( t );
+			pEmitter->builder = &(builder << t);
+			return (*pEmitter);
+		}
+
+	class BSONArrayEmitter {
+		public:
+			BSONArrayEmitter() {}
+
+			template<class T>
+			BSONArrayEmitter &append( const T &t) {
+				builder.append( t );
+				return *this;
+			}
+
+			BSONArray arr() {
+				return builder.arr();
+			}
+
+			BSONArrayBuilder builder;
+	};
 
 };
 // Would prefer to define these as friend, but not possible due to 
@@ -162,6 +185,12 @@ template<class T>
 mongo::BSONEmitter &operator<<( mongo::BSONValueEmitter &emitter, const T &t ) {
 	return emitter.append( t );
 }
+
+// Need to differentiate different cases of array builder:
+// BSONArrayBuilder << double/long etc -> just add it
+// BSONArrayBuilder << otherwise, convert it to bsonobj using bsonbuilder and then add it
+//
+// This is actually the main problem isn't it... so get it working :)
 
 /*
 template<class K, class V>
@@ -210,17 +239,23 @@ mongo::BSONObjBuilder &operator<<( mongo::BSONObjBuilderValueStream &bbuild,
 		b << el;
 	}
 	return bbuild << b.arr();
+}*/
+//template<class T>
+template<class T>
+mongo::BSONArrayEmitter &operator<<( mongo::BSONArrayEmitter &barr,
+		const T &t ) {
+	mongo::BSONObjBuilder b;
+	b << t;
+	return barr.append( b.obj() );
 }
 
 template<class T>
-mongo::BSONObjBuilder &operator<<( mongo::BSONObjBuilderValueStream &bbuild, 
+mongo::BSONEmitter &operator<<( mongo::BSONValueEmitter &bbuild, 
 		const std::vector<T> &vt ) { 
-	mongo::BSONArrayBuilder b;
+	mongo::BSONArrayEmitter b;
 	for ( T el : vt ) {
-		mongo::BSONObjBuilder bob;
-		bob << el;
-		b << bob.obj();
+		b << el;
 	}
-	return bbuild << b.arr();
-}*/
+	return bbuild.append( b.arr() );
+}
 #endif
