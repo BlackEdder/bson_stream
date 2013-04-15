@@ -32,8 +32,6 @@ class TestOut : public CxxTest::TestSuite {
 			// bobj now contains:
 			// { a: 2.0, b: [ 1.1, -2.9 ], test: { a: 2.01, b: 3.1 }, test_vector: [ { a: 2.01, b: 3.1 }, { a: -2.01, b: 1.1 } ] }
 		}
-
-
 		void testDouble() {
 			double a;
 			bobj["a"] >> a;
@@ -47,6 +45,8 @@ class TestOut : public CxxTest::TestSuite {
 
 			TS_ASSERT_EQUALS( b[0], 1.1 );
 			TS_ASSERT_EQUALS( b[1], -2.9 );
+			bobj["b"] >> b;
+			TS_ASSERT_EQUALS( b.size(), 2 );
 		}
 
 		void testSimpleSet() {
@@ -56,6 +56,8 @@ class TestOut : public CxxTest::TestSuite {
 			std::set<double> compare = { 1.1, -2.9 };
 			TS_ASSERT_EQUALS( b.size(), 2 );
 			TS_ASSERT_EQUALS( b, compare );
+			bobj["b"] >> b;
+			TS_ASSERT_EQUALS( b.size(), 2 );
 		}
 
 		void testSimpleList() {
@@ -65,6 +67,8 @@ class TestOut : public CxxTest::TestSuite {
 			std::list<double> compare = { 1.1, -2.9 };
 			TS_ASSERT_EQUALS( b.size(), 2 );
 			TS_ASSERT_EQUALS( b, compare );
+			bobj["b"] >> b;
+			TS_ASSERT_EQUALS( b.size(), 2 );
 		}
 
 		void testObjectToMap() {
@@ -73,6 +77,10 @@ class TestOut : public CxxTest::TestSuite {
 			bobj >> mymap;
 			TS_ASSERT_EQUALS( mymap["a"], 2.01 );
 			TS_ASSERT_EQUALS( mymap["b"], 3.1 );
+
+			mymap["c"] = 3.0;
+			bobj >> mymap;
+			TS_ASSERT_EQUALS( mymap.size(), 2 );
 		}
 
 		void testClass() {

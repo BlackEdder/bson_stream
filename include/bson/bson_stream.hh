@@ -30,6 +30,7 @@ void operator>>( const mongo::BSONElement &bel, double &t ) {
 
 template<class T>
 void operator>>( const mongo::BSONElement &bel, std::vector<T> &v ) {
+	v.clear();
 	auto barr = bel.Array();
 	for ( auto & bson_el : barr ) {
 		// This will only work if T has an empty constructor T()
@@ -42,6 +43,7 @@ void operator>>( const mongo::BSONElement &bel, std::vector<T> &v ) {
 
 template<class T>
 void operator>>( const mongo::BSONElement &bel, std::list<T> &v ) {
+	v.clear();
 	auto barr = bel.Array();
 	for ( auto & bson_el : barr ) {
 		// This will only work if T has an empty constructor T()
@@ -54,6 +56,7 @@ void operator>>( const mongo::BSONElement &bel, std::list<T> &v ) {
 
 template<class T>
 void operator>>( const mongo::BSONElement &bel, std::set<T> &v ) {
+	v.clear();
 	auto barr = bel.Array();
 	for ( auto & bson_el : barr ) {
 		// This will only work if T has an empty constructor T()
@@ -66,6 +69,7 @@ void operator>>( const mongo::BSONElement &bel, std::set<T> &v ) {
 
 template<class K, class V>
 void operator>>( const mongo::BSONObj &bobj, std::map<K,V> &map ) {
+	map.clear();
 	for ( mongo::BSONObj::iterator i = bobj.begin(); i.more(); ) {
 		mongo::BSONElement el = i.next();
 		V value;
