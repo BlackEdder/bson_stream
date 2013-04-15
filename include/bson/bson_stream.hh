@@ -97,6 +97,19 @@ void operator>>( const mongo::BSONObj &bobj, std::map<K,V> &map ) {
 
 
 namespace mongo {
+class BSONEmitter;
+
+class BSONValueEmitter {
+	public:
+		BSONValueEmitter( BSONEmitter *pEmitter );
+
+		template<class T>
+		BSONEmitter &append( const T &t );
+
+		BSONEmitter *pEmitter;
+		BSONObjBuilderValueStream builder;
+};
+
 /**
  * \brief Define an emitter for BSONObjects
  *
@@ -105,7 +118,7 @@ namespace mongo {
  */
 class BSONEmitter {
 	public:
-		BSONEmitter() : v_emitter( this ) {}
+		BSONEmitter() : builder( new BSONObjBuilder() ), v_emitter( this ) {}
 		BSONEmitter( BSONObjBuilder *builder ) 
 			: builder( builder ), v_emitter( this )
 		{}
@@ -113,8 +126,8 @@ class BSONEmitter {
 		BSONObj obj() {
 			return builder->obj();
 		}
-		BSONValueEmitter &append( const StringData &name ) {
-		 	v_emitter.builder.endField( name );
+		BSONValueEmitter &append( const std::string &name ) {
+		 	v_emitter.builder.endField( name.c_str() );
 			return v_emitter;
 		}
 
@@ -122,22 +135,18 @@ class BSONEmitter {
 		BSONValueEmitter v_emitter;
 };
 
-class BSONValueEmitter {
-	public:
-		BSONValueEmitter( BSONEmitter *pEmitter ) 
-			: pEmitter( pEmitter ), builder( pEmitter.builder ) {}
+BSONValueEmitter::BSONValueEmitter( BSONEmitter *pEmitter ) 
+	: pEmitter( pEmitter ), builder( pEmitter->builder ) {
+	}
 
-		template<class T>
-		BSONEmitter &append( const T &t ) {
-			pEmitter->builder = builder.append( t );
-			return pEmitter;
-		}
+	template<class T>
+	BSONEmitter &BSONValueEmitter::append( const T &t ) {
+		//pEmitter->builder->append( t );
+		pEmitter->builder = &(builder << t);
+		return (*pEmitter);
+	}
 
-		BSONObjBuilderValueStream builder;
-		BSONEmitter *pEmitter;
 };
-};
-
 // Would prefer to define these as friend, but not possible due to 
 // BSONValueEmitter not being define at that point in the header file 
 template<class T>

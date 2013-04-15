@@ -35,11 +35,19 @@ class TestIn : public CxxTest::TestSuite {
 	public:
 
 		void testDouble() {
-			BSONEmitter bbuild = BSONEmitter();
+			BSONEmitter bbuild;
 			bbuild << "a" << 1.0;
 			BSONObj bobj = BSONObjBuilder().append("a", 1.0).obj();
 			TS_ASSERT_EQUALS( bobj, bbuild.obj() );
 		}
+
+		void testTwoDouble() {
+			BSONEmitter bbuild;
+			bbuild << "a" << 1.0 << "b" << 2.1;
+			BSONObj bobj = BSONObjBuilder().append("a", 1.0).append("b", 2.1).obj();
+			TS_ASSERT_EQUALS( bobj, bbuild.obj() );
+		}
+
 
 	/*	void xtestVector() {
 			std::vector<double> v = { 1.1, -2.1 };
