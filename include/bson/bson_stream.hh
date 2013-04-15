@@ -74,28 +74,6 @@ void operator>>( const mongo::BSONObj &bobj, std::map<K,V> &map ) {
 	}
 }
 
-/**
- * Stream in
- *
- * YAML works as follows:
- Emitter out;
- out << Emitter::Key << "name";
- out << Emitter::Value << "Ryan Braun";
- out << Emitter::Key << "position";
- out << Emitter::Value << "LF";
- BSONobj bobj = out.obj();
-
- I guess we should start with just building on BSONBuilder, which requires that 
- a value could be any object, which then needs to be turned into a BSONElement, so
- one first needs to support <<( BSONElement &bel, T &t )
-
- It depends a bit on how BSONObjBuilder works if just adding my own classes 
- to <<(BSONElement &bel, myclass &c ) will be enough, 
- or do we need to use <<(BSONObjBuilder, myclass). If the second then it will be
- cleaner to add <<(BSONObjBuilder, T) which in turn calls <<(BSONElement, T)
- */
-
-
 namespace mongo {
 	class BSONEmitter;
 
@@ -105,6 +83,13 @@ namespace mongo {
 
 			template<class T>
 				BSONEmitter &append( const T &t );
+
+			BSONEmitter &append( const double &t );
+			BSONEmitter &append( const long long &t );
+			BSONEmitter &append( const bool &t );
+			BSONEmitter &append( const int &t );
+			BSONEmitter &append( const std::string &t );
+			BSONEmitter &append( const BSONArray &t );
 
 			BSONEmitter *pEmitter;
 			BSONObjBuilderValueStream builder;
@@ -151,17 +136,76 @@ namespace mongo {
 
 	template<class T>
 		BSONEmitter &BSONValueEmitter::append( const T &t ) {
-			//pEmitter->builder->append( t );
-			pEmitter->builder = &(builder << t);
+			mongo::BSONEmitter b;
+			b << t;
+			pEmitter->builder = &(builder << b.obj());
 			return (*pEmitter);
 		}
+
+	BSONEmitter &BSONValueEmitter::append( const double &t ) {
+		pEmitter->builder = &(builder << t);
+		return (*pEmitter);
+	}
+
+	BSONEmitter &BSONValueEmitter::append( const long long &t ) {
+		pEmitter->builder = &(builder << t);
+		return (*pEmitter);
+	}
+
+	BSONEmitter &BSONValueEmitter::append( const bool &t ) {
+		pEmitter->builder = &(builder << t);
+		return (*pEmitter);
+	}
+
+	BSONEmitter &BSONValueEmitter::append( const int &t ) {
+		pEmitter->builder = &(builder << t);
+		return (*pEmitter);
+	}
+
+	BSONEmitter &BSONValueEmitter::append( const std::string &t ) {
+		pEmitter->builder = &(builder << t);
+		return (*pEmitter);
+	}
+
+	BSONEmitter &BSONValueEmitter::append( const BSONArray &t ) {
+		pEmitter->builder = &(builder << t);
+		return (*pEmitter);
+	}
+
 
 	class BSONArrayEmitter {
 		public:
 			BSONArrayEmitter() {}
 
 			template<class T>
-			BSONArrayEmitter &append( const T &t) {
+				BSONArrayEmitter &append( const T &t ) {
+					mongo::BSONEmitter b;
+					b << t;
+					builder.append( b.obj() ); 
+					return *this;
+				}
+
+			BSONArrayEmitter &append(	const double &t ) {
+				builder.append( t );
+				return *this;
+			}
+
+			BSONArrayEmitter &append(	const long long &t ) {
+				builder.append( t );
+				return *this;
+			}
+
+			BSONArrayEmitter &append(	const bool &t ) {
+				builder.append( t );
+				return *this;
+			}
+
+			BSONArrayEmitter &append(	const int &t ) {
+				builder.append( t );
+				return *this;
+			}
+
+			BSONArrayEmitter &append(	const std::string &t ) {
 				builder.append( t );
 				return *this;
 			}
@@ -175,153 +219,29 @@ namespace mongo {
 
 };
 
-//! Turn pair into a BSONObjBuilder
-template<class K, class V>
-mongo::BSONObjBuilder &operator<<( 
-		mongo::BSONObjBuilder &bbuild, const std::pair<K, V> &t ) { 
- 	bbuild << t.first << t.second;
-	return bbuild;
-}
-
-//! Turn map into a BSONObjBuilder
-template<class K, class V>
-mongo::BSONObjBuilder &operator<<( 
-		mongo::BSONObjBuilder &bbuild, const std::map<K, V> &t ) { 
-	for (const std::pair<K,V> &p : t )
-		bbuild << p;
-	return bbuild;
-}
-
-// Would prefer to define these as friend, but not possible due to 
-// BSONValueEmitter not being define at that point in the header file 
 template<class T>
 mongo::BSONValueEmitter &operator<<( mongo::BSONEmitter &emitter, const T &t ) {
 	return emitter.append( t );
 } 
 
-//! Add map easily to an emitter, map keys become keys in the resulting BSONObj
+/*//! Add map easily to an emitter, map keys become keys in the resulting BSONObj
 template<class K, class V>
 mongo::BSONEmitter &operator<<( mongo::BSONEmitter &emitter, const std::map<K,V> &map ) {
 	(*emitter.builder) << map;
 	return emitter;
-}
-
-//! For normal classes we need to convert them to an BSONObj first
-//
-// Below we override all the normal types
-template<class T>
-mongo::BSONEmitter &operator<<( mongo::BSONValueEmitter &emitter, const T &t ) {
-	mongo::BSONObjBuilder b;
-	b << t;
-	return emitter.append( b.obj() );
-}
-
-/**
- * \brief Override for standard types (as opposed to classes/objects)
- */
-mongo::BSONEmitter &operator<<( mongo::BSONValueEmitter &emitter, const double &t ) {
-	return emitter.append( t );
-}
-
-mongo::BSONEmitter &operator<<( mongo::BSONValueEmitter &emitter, const long long &t ) {
-	return emitter.append( t );
-}
-
-mongo::BSONEmitter &operator<<( mongo::BSONValueEmitter &emitter, const bool &t ) {
-	return emitter.append( t );
-}
-
-
-mongo::BSONEmitter &operator<<( mongo::BSONValueEmitter &emitter, const int &t ) {
-	return emitter.append( t );
-}
-
-mongo::BSONEmitter &operator<<( mongo::BSONValueEmitter &emitter, const std::string &t ) {
-	return emitter.append( t );
-}
-
-/*
-template<class K, class V>
-mongo::BSONObjBuilder &operator<<( mongo::BSONObjBuilder &bbuild, 
-		const std::pair<K,V> &pair ) { 
-	bbuild << pair.first << pair.second;
-	return bbuild;
-}
-
-template<class K, class V>
-mongo::BSONObjBuilder &operator<<( mongo::BSONObjBuilder &bbuild, 
-		const std::map<K,V> &map ) { 
-	for ( auto pair : map ) {
-		bbuild << pair;
-	}
-	return bbuild;
-}
-
-mongo::BSONObjBuilder &operator<<( 
-				mongo::BSONObjBuilderValueStream &bbuild, const double d ) { 
-	return bbuild << d;
-}
-
-template<class T>
-mongo::BSONObjBuilder &operator<<( 
-				mongo::BSONObjBuilderValueStream &bbuild, const T &t ) { 
-	mongo::BSONObjBuilder bob;
-	bob << t;
-	return bbuild << bob.obj();
-}
-
-
-template<class K, class V>
-mongo::BSONObjBuilder &operator<<( mongo::BSONObjBuilderValueStream &bbuild, 
-		const std::map<K,V> &map ) { 
-	mongo::BSONObjBuilder b;
-	for ( auto pair : map )
-		b << pair.first << pair.second;
-	return bbuild << b.obj();
-}
-
-mongo::BSONObjBuilder &operator<<( mongo::BSONObjBuilderValueStream &bbuild, 
-		const std::vector<double> &vt ) { 
-	mongo::BSONArrayBuilder b;
-	for ( auto el : vt ) {
-		b << el;
-	}
-	return bbuild << b.arr();
 }*/
 
-//template<class T>
+template<class T>
+mongo::BSONEmitter &operator<<( mongo::BSONValueEmitter &emitter, const T &t ) {
+	return emitter.append( t );
+}
+
 template<class T>
 mongo::BSONArrayEmitter &operator<<( mongo::BSONArrayEmitter &barr,
 		const T &t ) {
-	mongo::BSONObjBuilder b;
-	b << t;
-	return barr.append( b.obj() );
-}
-
-mongo::BSONArrayEmitter &operator<<( mongo::BSONArrayEmitter &barr,
-		const double &t ) {
 	return barr.append( t );
 }
 
-mongo::BSONArrayEmitter &operator<<( mongo::BSONArrayEmitter &barr,
-		const long long &t ) {
-	return barr.append( t );
-}
-
-mongo::BSONArrayEmitter &operator<<( mongo::BSONArrayEmitter &barr,
-		const bool &t ) {
-	return barr.append( t );
-}
-
-mongo::BSONArrayEmitter &operator<<( mongo::BSONArrayEmitter &barr,
-		const int &t ) {
-	return barr.append( t );
-}
-
-mongo::BSONArrayEmitter &operator<<( mongo::BSONArrayEmitter &barr,
-		const std::string &t ) {
-	return barr.append( t );
-}
 
 template<class T>
 mongo::BSONEmitter &operator<<( mongo::BSONValueEmitter &bbuild, 
