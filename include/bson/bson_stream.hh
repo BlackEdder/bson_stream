@@ -94,6 +94,7 @@ namespace mongo {
 			BSONEmitter &append( const int &t );
 			BSONEmitter &append( const std::string &t );
 			BSONEmitter &append( const BSONArray &t );
+			BSONEmitter &append( const BSONObj &t );
 
 			BSONEmitter *pEmitter;
 			BSONObjBuilderValueStream builder;
@@ -142,8 +143,7 @@ namespace mongo {
 		BSONEmitter &BSONValueEmitter::append( const T &t ) {
 			mongo::BSONEmitter b;
 			b << t;
-			pEmitter->builder = &(builder << b.obj());
-			return (*pEmitter);
+			return this->append( b.obj() );
 		}
 
 	BSONEmitter &BSONValueEmitter::append( const double &t ) {
@@ -175,6 +175,12 @@ namespace mongo {
 		pEmitter->builder = &(builder << t);
 		return (*pEmitter);
 	}
+
+	BSONEmitter &BSONValueEmitter::append( const BSONObj &t ) {
+		pEmitter->builder = &(builder << t);
+		return (*pEmitter);
+	}
+
 
 
 	class BSONArrayEmitter {
