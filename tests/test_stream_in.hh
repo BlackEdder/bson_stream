@@ -1,7 +1,8 @@
 
 #include <cxxtest/TestSuite.h>
 #include "bson/bson_stream.hh"
-using namespace mongo;
+
+//using namespace mongo;
 
 class test {
 	public:
@@ -45,38 +46,21 @@ class test2 {
 
 };
 
-/*//! Turn pair into a BSONObjBuilder
-template<class K, class V>
-mongo::BSONEmitter &operator<<( 
-		mongo::BSONEmitter &bbuild, const std::pair<K, V> &t ) { 
- 	bbuild << t.first << t.second;
-	return bbuild;
-}
-
-//! Turn map into a BSONObjBuilder
-template<class K, class V>
-mongo::BSONEmitter &operator<<( 
-		mongo::BSONEmitter &bbuild, const std::map<K, V> &t ) { 
-	for (const std::pair<K,V> &p : t )
-		bbuild << p;
-	return bbuild;
-}*/
-
 class TestIn : public CxxTest::TestSuite {
 	public:
 
 		template<class T>
 		void helpTypes( const T &t ) {
-			BSONEmitter bbuild;
+			mongo::BSONEmitter bbuild;
 			bbuild << "a" << t;
-			BSONObj bobj = BSONObjBuilder().append("a", t).obj();
+			mongo::BSONObj bobj = mongo::BSONObjBuilder().append("a", t).obj();
 			TS_ASSERT_EQUALS( bobj, bbuild.obj() );
 		}
 
 		void testDouble() {
-			BSONEmitter bbuild;
+			mongo::BSONEmitter bbuild;
 			bbuild << "a" << 1.0;
-			BSONObj bobj = BSONObjBuilder().append("a", 1.0).obj();
+			mongo::BSONObj bobj = mongo::BSONObjBuilder().append("a", 1.0).obj();
 			TS_ASSERT_EQUALS( bobj, bbuild.obj() );
 		}
 
@@ -95,14 +79,14 @@ class TestIn : public CxxTest::TestSuite {
 
 
 		void testTwoDouble() {
-			BSONEmitter bbuild;
+			mongo::BSONEmitter bbuild;
 			bbuild << "a" << 1.0 << "b" << 2.1;
-			BSONObj bobj = BSONObjBuilder().append("a", 1.0).append("b", 2.1).obj();
+			mongo::BSONObj bobj = mongo::BSONObjBuilder().append("a", 1.0).append("b", 2.1).obj();
 			TS_ASSERT_EQUALS( bobj, bbuild.obj() );
 		}
 
 		void testMemoryManagement() {
-			BSONEmitter bbuild;
+			mongo::BSONEmitter bbuild;
 			bbuild << "a" << 1.0 << "b" << 2.1;
 			auto bobj = bbuild.obj();
 			std::cout << bobj << std::endl; // This will crash if something went wrong
@@ -111,28 +95,44 @@ class TestIn : public CxxTest::TestSuite {
 
 		void testVector() {
 			std::vector<double> v = { 1.1, -2.1 };
-			BSONEmitter bbuild;
+			mongo::BSONEmitter bbuild;
 			bbuild << "a" << v;
-			BSONObj bobj = BSONObjBuilder().append("a", v).obj();
+			mongo::BSONObj bobj = mongo::BSONObjBuilder().append("a", v).obj();
 			TS_ASSERT_EQUALS( bobj, bbuild.obj() );
 		}
 
-		/*void xtestMap() {
+		void testMap() {
 			std::map<std::string, double> mymap = {{"a", 1.0}};
-			BSONEmitter bbuild;
+			mongo::BSONEmitter bbuild;
 			bbuild << mymap;
-			BSONObj bobj = BSONObjBuilder().append("a", 1.0).obj();
+			mongo::BSONObj bobj = mongo::BSONObjBuilder().append("a", 1.0).obj();
 			TS_ASSERT_EQUALS( bobj, bbuild.obj() );
-		}*/
+		}
 
-		/*void xtestMapAsValue() {
+		void testMapAsValue() {
 			std::map<std::string, double> mymap = {{"a", 1.0}};
-			BSONEmitter bbuild;
+			mongo::BSONEmitter bbuild;
 			bbuild << "map" << mymap;
-			BSONObj bobj = BSONObjBuilder().append( "map",
-				BSONObjBuilder().append("a", 1.0).obj() ).obj();
-			TS_ASSERT_EQUALS( bobj, bbuild.obj() );
-		}*/
+			auto obj = bbuild.obj();
+			mongo::BSONObj bobj = mongo::BSONObjBuilder().append( "map",
+				mongo::BSONObjBuilder().append("a", 1.0).obj() ).obj();
+			TS_ASSERT_EQUALS( bobj, obj );
+		}
+
+		void testVectorMapAsValue() {
+			std::vector<std::map<std::string, double> > mymap = {{{"a", 1.0}}};
+			mongo::BSONEmitter bbuild;
+			bbuild << "map" << mymap;
+			auto obj = bbuild.obj();
+			std::cout << obj << std::endl;
+			mongo::BSONObj bobj = mongo::BSONObjBuilder().append( "map",
+					mongo::BSONArrayBuilder()
+					.append( 
+						mongo::BSONObjBuilder().append("a", 1.0).obj()).arr()
+					).obj();
+			TS_ASSERT_EQUALS( bobj, obj );
+		}
+
 
 		void testVectorAsValue() {
 			std::vector<double> vd = {-1.1, 1.0};
@@ -161,32 +161,32 @@ class TestIn : public CxxTest::TestSuite {
 
 		void testTestClassAsValue() {
 			test t(-1.1, 1.0);
-			BSONEmitter bbuild;
+			mongo::BSONEmitter bbuild;
 			bbuild << "test" << t;
 			auto obj = bbuild.obj();
-			BSONObj bobj = BSONObjBuilder().append( "test", 
-					BSONObjBuilder().append(
+			mongo::BSONObj bobj = mongo::BSONObjBuilder().append( "test", 
+					mongo::BSONObjBuilder().append(
 						"a", t.a).append( "b", t.b ).obj()).obj();
 			TS_ASSERT_EQUALS( bobj, obj );
 		}
 
 		void testTestClassAsVector() {
 			std::vector<test> vt = { test(-1.1, 1.0), test( -2.0, -1.1 ) };
-			BSONEmitter bbuild;
+			mongo::BSONEmitter bbuild;
 			bbuild << "test" << vt;
 			auto obj = bbuild.obj();
-			BSONObj bobj = BSONObjBuilder().append( "test", 
-					BSONArrayBuilder()
+			mongo::BSONObj bobj = mongo::BSONObjBuilder().append( "test", 
+					mongo::BSONArrayBuilder()
 					.append( 
-						BSONObjBuilder().append( "a", vt[0].a).append( "b", vt[0].b ).obj())
+						mongo::BSONObjBuilder().append( "a", vt[0].a).append( "b", vt[0].b ).obj())
 					.append( 
-						BSONObjBuilder().append( "a", vt[1].a).append( "b", vt[1].b ).obj())
+						mongo::BSONObjBuilder().append( "a", vt[1].a).append( "b", vt[1].b ).obj())
 					.arr()).obj();
 			TS_ASSERT_EQUALS( bobj, obj );
 		}
 
 		void testTestClassTest2() {
-			BSONEmitter bbuild;
+			mongo::BSONEmitter bbuild;
 			test2 t = test2();
 			bbuild << "test2" << t;
 			auto obj = bbuild.obj();

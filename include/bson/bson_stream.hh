@@ -15,7 +15,7 @@
 
 #ifndef BSON_STREAM_H
 #define BSON_STREAM_H
-
+#include<map>
 #include "bson/bson.h"
 
 
@@ -226,6 +226,22 @@ namespace mongo {
 
 			BSONArrayBuilder builder;
 	};
+
+	template<class K, class V>
+		BSONEmitter &operator<<( BSONEmitter &wrap, 
+				const std::pair<K,V> &t ) {
+			wrap.append( t.first ).append( t.second );
+			return wrap;
+		}
+
+	template<class K, class V>
+		BSONEmitter &operator<<( BSONEmitter &wrap, 
+				const std::map<K,V> &t ) {
+			for (auto & pair : t)
+				wrap << pair;
+			return wrap;
+		}
+
 
 };
 
