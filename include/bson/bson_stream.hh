@@ -24,6 +24,18 @@ void operator>>( const mongo::BSONElement &bel, T &t ) {
 	bel.Val( t );
 }
 
+template<class T>
+void operator>>( const mongo::BSONObj &bobj, T &t ) {
+	// If we have a object we probably want to pipe the object as a whole into 
+	// class T. To do that we first turn it into an element (containing an sub object)
+	// and then pipe that to our class T. I could not find a simple way of turning an
+	// object into an element, so we'll wrap it up and then when we unwrap it we get
+	// an element back
+	mongo::BSONObjBuilder bbuild;
+	bbuild << "a" << bobj;
+	bbuild.obj()["a"] >> t;
+}
+
 void operator>>( const mongo::BSONElement &bel, double &t ) {
 	t = bel.Number();
 }

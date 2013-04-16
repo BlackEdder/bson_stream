@@ -84,6 +84,16 @@ class TestOut : public CxxTest::TestSuite {
 		}
 
 		void testClass() {
+			test test_c( 0, 0 );
+			mongo::BSONObj bobj2 = BSONObjBuilder().append( "a", 2.3 ). 
+				append( "b", -2.3 ).obj();
+			bobj2 >> test_c;
+			TS_ASSERT_EQUALS( test_c.a, 2.3 );
+			TS_ASSERT_EQUALS( test_c.b, -2.3 );
+		}
+
+
+		void testClassAsValue() {
 			test test_c;
 			bobj["test"] >> test_c;
 			TS_ASSERT_EQUALS( test_c.a, 2.01 );
