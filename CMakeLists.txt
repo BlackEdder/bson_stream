@@ -32,7 +32,7 @@ SET(LIBS "${MONGO};${Boost_LIBRARIES}")
 
 
 SET (CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
-install (FILES include/bson/bson_stream.h
+install (FILES include/bson/bson_stream.hh
 	DESTINATION include/bson)
 
 # Tests
