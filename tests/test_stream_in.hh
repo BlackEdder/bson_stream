@@ -114,7 +114,8 @@ class TestIn : public CxxTest::TestSuite {
 			bbuild << "map" << mymap;
 			auto obj = bbuild.obj();
 			mongo::BSONObj bobj = mongo::BSONObjBuilder().append( "map",
-				mongo::BSONObjBuilder().append("a", 1.0).obj() ).obj();
+				mongo::BSONArrayBuilder().append(
+					mongo::BSONArrayBuilder().append("a").append(1.0).arr()).arr() ).obj();
 			TS_ASSERT_EQUALS( bobj, obj );
 		}
 
@@ -183,17 +184,43 @@ class TestIn : public CxxTest::TestSuite {
 					.arr()).obj();
 			TS_ASSERT_EQUALS( bobj, obj );
 		}
+		
 
+		// The following tests just stream into and then out of bson to check
+		// if we get the same back as we put into (above tests all specifically
+		// test the bson itself that is the step in the middle
 		void testTestClassTest2() {
 			mongo::BSONEmitter bbuild;
 			test2 t = test2();
 			bbuild << "test2" << t;
 			auto obj = bbuild.obj();
-			std::cout << obj << std::endl;
 			test2 t2;
 			t2.test_vector.push_back( test(0,0) );
 			TS_ASSERT_DIFFERS( t2.test_vector.size(), t.test_vector.size() );
 			obj["test2"] >> t2;
 			TS_ASSERT_EQUALS( t2.test_vector.size(), t.test_vector.size() );
+		}
+
+		void testNonStringPair() {
+			mongo::BSONEmitter bbuild;
+			std::pair< int, double > pair = {1, 2.1};
+			bbuild << "pair" << pair;
+			auto obj = bbuild.obj();
+			std::pair< int, double > pair_cpy = {0, 0};
+			TS_ASSERT_DIFFERS( pair, pair_cpy );
+			obj["pair"] >> pair_cpy;
+			TS_ASSERT_EQUALS( pair, pair_cpy );
+		}
+
+		void testNonStringMap() {
+			mongo::BSONEmitter bbuild;
+			std::map< int, double > map = {{1, 2.1},{2,3.1}};
+			bbuild << "map" << map;
+			auto obj = bbuild.obj();
+			std::cout << obj << std::endl;
+			std::map< int, double > map_cpy = {{0, 0}};
+			TS_ASSERT_DIFFERS( map, map_cpy );
+			obj["map"] >> map_cpy;
+			TS_ASSERT_EQUALS( map, map_cpy );
 		}
 };

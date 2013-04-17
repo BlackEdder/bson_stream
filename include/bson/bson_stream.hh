@@ -81,6 +81,25 @@ void operator>>( const mongo::BSONElement &bel, std::set<T> &v ) {
 	}
 }
 
+template<class K, class V>
+void operator>>( const mongo::BSONElement &bel, std::pair<K,V> &p ) {
+	auto barr = bel.Array();
+	barr[0] >> p.first;
+	barr[1] >> p.second;
+}
+
+template<class K, class V>
+void operator>>( const mongo::BSONElement &bel, std::map<K,V> &map ) {
+	map.clear();
+	auto barr = bel.Array();
+	for ( auto & bson_el : barr ) {
+		std::pair<K,V> el;
+		bson_el >> el;
+		map.insert( el );
+	}
+}
+
+	
 template<class V>
 void operator>>( const mongo::BSONObj &bobj, std::map<char *,V> &map ) {
 	map.clear();
@@ -244,6 +263,12 @@ void operator>>( const mongo::BSONObj &bobj, std::map<std::string,V> &map ) {
 				return *this;
 			}
 
+			BSONArrayEmitter &append(	const BSONArray &t ) {
+				builder.append( t );
+				return *this;
+			}
+
+
 			BSONArray arr() {
 				return builder.arr();
 			}
@@ -326,6 +351,26 @@ mongo::BSONEmitter &operator<<( mongo::BSONValueEmitter &bbuild,
 	mongo::BSONArrayEmitter b;
 	for ( const T &el : vt ) {
 		b << el;
+	}
+	return bbuild.append( b.arr() );
+}
+
+template<class K, class V>
+mongo::BSONEmitter &operator<<( mongo::BSONValueEmitter &bbuild, 
+		const std::pair<K,V> &p ) { 
+	mongo::BSONArrayEmitter b;
+	b << p.first << p.second;
+	return bbuild.append( b.arr() );
+}
+
+template<class K, class V>
+mongo::BSONEmitter &operator<<( mongo::BSONValueEmitter &bbuild, 
+		const std::map<K,V> &map ) { 
+	mongo::BSONArrayEmitter b;
+	for (auto &p : map) {
+		mongo::BSONArrayEmitter b2;
+		b2 << p.first << p.second;
+		b.append( b2.arr() );
 	}
 	return bbuild.append( b.arr() );
 }
