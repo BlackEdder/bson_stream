@@ -81,8 +81,19 @@ void operator>>( const mongo::BSONElement &bel, std::set<T> &v ) {
 	}
 }
 
-template<class K, class V>
-void operator>>( const mongo::BSONObj &bobj, std::map<K,V> &map ) {
+template<class V>
+void operator>>( const mongo::BSONObj &bobj, std::map<char *,V> &map ) {
+	map.clear();
+	for ( mongo::BSONObj::iterator i = bobj.begin(); i.more(); ) {
+		mongo::BSONElement el = i.next();
+		V value;
+		el >> value;
+		map[el.fieldName()] = value;
+	}
+}
+
+template<class V>
+void operator>>( const mongo::BSONObj &bobj, std::map<std::string,V> &map ) {
 	map.clear();
 	for ( mongo::BSONObj::iterator i = bobj.begin(); i.more(); ) {
 		mongo::BSONElement el = i.next();
@@ -240,16 +251,31 @@ void operator>>( const mongo::BSONObj &bobj, std::map<K,V> &map ) {
 			BSONArrayBuilder builder;
 	};
 
-	template<class K, class V>
+	template<class V>
 		BSONEmitter &operator<<( BSONEmitter &wrap, 
-				const std::pair<K,V> &t ) {
-			wrap.append( t.first ).append( t.second );
+				const std::pair<const char *,V> &t ) {
+			wrap << t.first << t.second;
+			return wrap;
+		}
+	template<class V>
+		BSONEmitter &operator<<( BSONEmitter &wrap, 
+				const std::pair<const std::string,V> &t ) {
+			wrap << t.first << t.second;
 			return wrap;
 		}
 
-	template<class K, class V>
+	template<class V>
 		BSONEmitter &operator<<( BSONEmitter &wrap, 
-				const std::map<K,V> &t ) {
+				const std::map<char *,V> &t ) {
+			for (auto & pair : t)
+				wrap << pair;
+			return wrap;
+		}
+
+
+	template<class V>
+		BSONEmitter &operator<<( BSONEmitter &wrap, 
+				const std::map<std::string,V> &t ) {
 			for (auto & pair : t)
 				wrap << pair;
 			return wrap;
@@ -261,13 +287,6 @@ template<class T>
 mongo::BSONValueEmitter &operator<<( mongo::BSONEmitter &emitter, const T &t ) {
 	return emitter.append( t );
 } 
-
-/*//! Add map easily to an emitter, map keys become keys in the resulting BSONObj
-template<class K, class V>
-mongo::BSONEmitter &operator<<( mongo::BSONEmitter &emitter, const std::map<K,V> &map ) {
-	(*emitter.builder) << map;
-	return emitter;
-}*/
 
 template<class T>
 mongo::BSONEmitter &operator<<( mongo::BSONValueEmitter &emitter, const T &t ) {
