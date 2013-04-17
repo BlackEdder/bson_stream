@@ -374,6 +374,37 @@ mongo::BSONEmitter &operator<<( mongo::BSONValueEmitter &bbuild,
 	}
 	return bbuild.append( b.arr() );
 }
+
+template<class T>
+mongo::BSONArrayEmitter &operator<<( mongo::BSONArrayEmitter &bbuild, 
+		const std::vector<T> &vt ) { 
+	mongo::BSONArrayEmitter b;
+	for ( const T &el : vt ) {
+		b << el;
+	}
+	return bbuild.append( b.arr() );
+}
+
+template<class T>
+mongo::BSONArrayEmitter &operator<<( mongo::BSONArrayEmitter &bbuild, 
+		const std::set<T> &vt ) { 
+	mongo::BSONArrayEmitter b;
+	for ( const T &el : vt ) {
+		b << el;
+	}
+	return bbuild.append( b.arr() );
+}
+
+template<class T>
+mongo::BSONArrayEmitter &operator<<( mongo::BSONArrayEmitter &bbuild, 
+		const std::list<T> &vt ) { 
+	mongo::BSONArrayEmitter b;
+	for ( const T &el : vt ) {
+		b << el;
+	}
+	return bbuild.append( b.arr() );
+}
+
 };
 
 #endif

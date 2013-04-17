@@ -223,4 +223,16 @@ class TestIn : public CxxTest::TestSuite {
 			obj["map"] >> map_cpy;
 			TS_ASSERT_EQUALS( map, map_cpy );
 		}
+
+		void testNonStringMapVector() {
+			mongo::BSONEmitter bbuild;
+			std::map< int, std::vector<double> > map = {{1, {2.1}},{2,{3.1}}};
+			bbuild << "map" << map;
+			auto obj = bbuild.obj();
+			std::cout << obj << std::endl;
+			std::map< int, std::vector<double> > map_cpy = {{0, {0}}};
+			TS_ASSERT_DIFFERS( map, map_cpy );
+			obj["map"] >> map_cpy;
+			TS_ASSERT_EQUALS( map, map_cpy );
+		}
 };
