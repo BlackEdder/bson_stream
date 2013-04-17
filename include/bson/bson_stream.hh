@@ -36,6 +36,7 @@ void operator>>( const mongo::BSONObj &bobj, T &t ) {
 	bbuild.obj()["a"] >> t;
 }
 
+void operator>>( const mongo::BSONElement &bel, double &t );
 inline void operator>>( const mongo::BSONElement &bel, double &t ) {
 	t = bel.Number();
 }

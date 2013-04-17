@@ -32,6 +32,28 @@ class TestOut : public CxxTest::TestSuite {
 			// bobj now contains:
 			// { a: 2.0, b: [ 1.1, -2.9 ], test: { a: 2.01, b: 3.1 }, test_vector: [ { a: 2.01, b: 3.1 }, { a: -2.01, b: 1.1 } ] }
 		}
+
+		template<class T>
+		void helpTypes( const T &t ) {
+			mongo::BSONObj bobj = mongo::BSONObjBuilder().append("a", t).obj();
+			T a;
+			bobj["a"]>>a;
+			TS_ASSERT_EQUALS( t, a );
+		}
+
+		void testTypes() {
+			long long v = 1;
+			helpTypes( v );
+			bool b = true;
+			helpTypes( b );
+			int i = 2;
+			helpTypes( i );
+			double d = 2.1;
+			helpTypes( d );
+			std::string s = "Hello world!";
+			helpTypes( s );
+		}
+
 		void testDouble() {
 			double a;
 			bobj["a"] >> a;
