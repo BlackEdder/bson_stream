@@ -36,7 +36,7 @@ void operator>>( const mongo::BSONObj &bobj, T &t ) {
 	bbuild.obj()["a"] >> t;
 }
 
-void operator>>( const mongo::BSONElement &bel, double &t ) {
+inline void operator>>( const mongo::BSONElement &bel, double &t ) {
 	t = bel.Number();
 }
 
@@ -147,7 +147,7 @@ namespace mongo {
 			BSONValueEmitter v_emitter;
 	};
 
-	BSONValueEmitter::BSONValueEmitter( BSONEmitter *pEmitter ) 
+	inline BSONValueEmitter::BSONValueEmitter( BSONEmitter *pEmitter ) 
 		: pEmitter( pEmitter ), builder( pEmitter->builder ) {
 		}
 
@@ -158,37 +158,37 @@ namespace mongo {
 			return this->append( b.obj() );
 		}
 
-	BSONEmitter &BSONValueEmitter::append( const double &t ) {
+	inline BSONEmitter &BSONValueEmitter::append( const double &t ) {
 		pEmitter->builder = &(builder << t);
 		return (*pEmitter);
 	}
 
-	BSONEmitter &BSONValueEmitter::append( const long long &t ) {
+	inline BSONEmitter &BSONValueEmitter::append( const long long &t ) {
 		pEmitter->builder = &(builder << t);
 		return (*pEmitter);
 	}
 
-	BSONEmitter &BSONValueEmitter::append( const bool &t ) {
+	inline BSONEmitter &BSONValueEmitter::append( const bool &t ) {
 		pEmitter->builder = &(builder << t);
 		return (*pEmitter);
 	}
 
-	BSONEmitter &BSONValueEmitter::append( const int &t ) {
+	inline BSONEmitter &BSONValueEmitter::append( const int &t ) {
 		pEmitter->builder = &(builder << t);
 		return (*pEmitter);
 	}
 
-	BSONEmitter &BSONValueEmitter::append( const std::string &t ) {
+	inline BSONEmitter &BSONValueEmitter::append( const std::string &t ) {
 		pEmitter->builder = &(builder << t);
 		return (*pEmitter);
 	}
 
-	BSONEmitter &BSONValueEmitter::append( const BSONArray &t ) {
+	inline BSONEmitter &BSONValueEmitter::append( const BSONArray &t ) {
 		pEmitter->builder = &(builder << t);
 		return (*pEmitter);
 	}
 
-	BSONEmitter &BSONValueEmitter::append( const BSONObj &t ) {
+	inline BSONEmitter &BSONValueEmitter::append( const BSONObj &t ) {
 		pEmitter->builder = &(builder << t);
 		return (*pEmitter);
 	}
