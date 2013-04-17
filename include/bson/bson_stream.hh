@@ -18,6 +18,7 @@
 #include<map>
 #include "bson/bson.h"
 
+namespace mongo {
 
 template<class T>
 void operator>>( const mongo::BSONElement &bel, T &t ) {
@@ -91,7 +92,6 @@ void operator>>( const mongo::BSONObj &bobj, std::map<K,V> &map ) {
 	}
 }
 
-namespace mongo {
 	class BSONEmitter;
 
 	class BSONValueEmitter {
@@ -256,7 +256,6 @@ namespace mongo {
 		}
 
 
-};
 
 template<class T>
 mongo::BSONValueEmitter &operator<<( mongo::BSONEmitter &emitter, const T &t ) {
@@ -311,5 +310,6 @@ mongo::BSONEmitter &operator<<( mongo::BSONValueEmitter &bbuild,
 	}
 	return bbuild.append( b.arr() );
 }
+};
 
 #endif
