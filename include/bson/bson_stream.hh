@@ -331,9 +331,7 @@ void operator>>( const mongo::BSONObj &bobj, std::map<std::string,V> &map ) {
 		BSONEmitter &operator<<( BSONEmitter &wrap, 
 				const OID &id );
 		inline BSONEmitter &operator<<( BSONEmitter &wrap, const OID &id ) {
-			std::cout << "Here" << std::endl;
 			wrap.builder->append( "_id", id );
-			std::cout << "Here2" << std::endl;
 			return wrap;
 		}
 	
