@@ -75,6 +75,12 @@ class TestIn : public CxxTest::TestSuite {
 			helpTypes( d );
 			std::string s = "Hello world!";
 			helpTypes( s );
+
+			size_t st = 1;
+			mongo::BSONEmitter bbuild;
+			bbuild << "a" << st;
+			mongo::BSONObj bobj = mongo::BSONObjBuilder().append("a", (long long) st).obj();
+			TS_ASSERT_EQUALS( bobj, bbuild.obj() );
 		}
 
 		void testTwoDouble() {

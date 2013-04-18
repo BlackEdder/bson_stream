@@ -34,6 +34,7 @@ class TestOut : public CxxTest::TestSuite {
 		}
 
 		template<class T>
+
 		void helpTypes( const T &t ) {
 			mongo::BSONObj bobj = mongo::BSONObjBuilder().append("a", t).obj();
 			T a;
@@ -52,6 +53,12 @@ class TestOut : public CxxTest::TestSuite {
 			helpTypes( d );
 			std::string s = "Hello world!";
 			helpTypes( s );
+
+			size_t st = 1;
+			mongo::BSONObj bobj = mongo::BSONObjBuilder().append("a", (long long) st ).obj();
+			size_t a;
+			bobj["a"]>>a;
+			TS_ASSERT_EQUALS( st, a );
 		}
 
 		void testDouble() {

@@ -25,6 +25,13 @@ void operator>>( const mongo::BSONElement &bel, T &t ) {
 	bel.Val( t );
 }
 
+void operator>>( const mongo::BSONElement &bel, size_t &t );
+inline void operator>>( const mongo::BSONElement &bel, size_t &t ) {
+	long long cpy;
+	bel.Val( cpy );
+	t = (size_t) cpy;
+}
+
 template<class T>
 void operator>>( const mongo::BSONObj &bobj, T &t ) {
 	// If we have a object we probably want to pipe the object as a whole into 
@@ -133,6 +140,7 @@ void operator>>( const mongo::BSONObj &bobj, std::map<std::string,V> &map ) {
 
 			BSONEmitter &append( const double &t );
 			BSONEmitter &append( const long long &t );
+			BSONEmitter &append( const size_t &t );
 			BSONEmitter &append( const bool &t );
 			BSONEmitter &append( const int &t );
 			BSONEmitter &append( const std::string &t );
@@ -199,6 +207,13 @@ void operator>>( const mongo::BSONObj &bobj, std::map<std::string,V> &map ) {
 		return (*pEmitter);
 	}
 
+	inline BSONEmitter &BSONValueEmitter::append( const size_t &t ) {
+		// Casting to long long, which should be save enough
+		long long cpy = (long long) t;
+		pEmitter->builder = &(builder << cpy);
+		return (*pEmitter);
+	}
+
 	inline BSONEmitter &BSONValueEmitter::append( const bool &t ) {
 		pEmitter->builder = &(builder << t);
 		return (*pEmitter);
@@ -245,6 +260,13 @@ void operator>>( const mongo::BSONObj &bobj, std::map<std::string,V> &map ) {
 
 			BSONArrayEmitter &append(	const long long &t ) {
 				builder.append( t );
+				return *this;
+			}
+
+			BSONArrayEmitter &append(	const size_t &t ) {
+				// Casting to long long, which should be save enough
+				long long cpy = (long long) t;
+				builder.append( cpy );
 				return *this;
 			}
 
