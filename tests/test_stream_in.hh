@@ -130,7 +130,6 @@ class TestIn : public CxxTest::TestSuite {
 			mongo::BSONEmitter bbuild;
 			bbuild << "map" << mymap;
 			auto obj = bbuild.obj();
-			std::cout << obj << std::endl;
 			mongo::BSONObj bobj = mongo::BSONObjBuilder().append( "map",
 					mongo::BSONArrayBuilder()
 					.append( 
@@ -223,7 +222,6 @@ class TestIn : public CxxTest::TestSuite {
 			std::map< int, double > map = {{1, 2.1},{2,3.1}};
 			bbuild << "map" << map;
 			auto obj = bbuild.obj();
-			std::cout << obj << std::endl;
 			std::map< int, double > map_cpy = {{0, 0}};
 			TS_ASSERT_DIFFERS( map, map_cpy );
 			obj["map"] >> map_cpy;
@@ -235,10 +233,42 @@ class TestIn : public CxxTest::TestSuite {
 			std::map< int, std::vector<double> > map = {{1, {2.1}},{2,{3.1}}};
 			bbuild << "map" << map;
 			auto obj = bbuild.obj();
-			std::cout << obj << std::endl;
 			std::map< int, std::vector<double> > map_cpy = {{0, {0}}};
 			TS_ASSERT_DIFFERS( map, map_cpy );
 			obj["map"] >> map_cpy;
 			TS_ASSERT_EQUALS( map, map_cpy );
 		}
+
+		void testOIDs() {
+			auto oid1 = mongo::OID::gen();
+			auto oid2 = mongo::OID::gen();
+
+			mongo::BSONEmitter bbuild1;
+			bbuild1 << oid1;
+			auto obj1 = bbuild1.obj();
+			mongo::OID oid1_cpy;
+			TS_ASSERT_DIFFERS( oid1, oid1_cpy );
+			obj1["_id"] >> oid1_cpy;
+			TS_ASSERT_EQUALS( oid1, oid1_cpy );
+
+			mongo::BSONEmitter bbuild2;
+			bbuild2 << "oid" << oid2;
+			auto obj2 = bbuild2.obj();
+			mongo::OID oid2_cpy;
+			TS_ASSERT_DIFFERS( oid2, oid2_cpy );
+			obj2["oid"] >> oid2_cpy;
+			TS_ASSERT_EQUALS( oid2, oid2_cpy );
+
+			std::vector<mongo::OID> oid3 = { mongo::OID::gen(), mongo::OID::gen() };
+			mongo::BSONEmitter bbuild3;
+			bbuild3 << "oid" << oid3;
+			auto obj3 = bbuild3.obj();
+			std::vector<mongo::OID> oid3_cpy = {};
+			TS_ASSERT_DIFFERS( oid3, oid3_cpy );
+			obj3["oid"] >> oid3_cpy;
+			TS_ASSERT_EQUALS( oid3, oid3_cpy );
+
+
+		}
+
 };

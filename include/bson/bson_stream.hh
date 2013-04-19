@@ -146,9 +146,18 @@ void operator>>( const mongo::BSONObj &bobj, std::map<std::string,V> &map ) {
 			BSONEmitter &append( const std::string &t );
 			BSONEmitter &append( const BSONArray &t );
 			BSONEmitter &append( const BSONObj &t );
+			BSONEmitter &append( const OID &t );
+
+			void endField( const char *name ) {
+				fieldName = name;
+				builder.endField( name );
+			}
 
 			BSONEmitter *pEmitter;
 			BSONObjBuilderValueStream builder;
+		protected:
+			const char *fieldName;
+			
 	};
 
 	/**
@@ -177,7 +186,7 @@ void operator>>( const mongo::BSONObj &bobj, std::map<std::string,V> &map ) {
 			}
 
 			BSONValueEmitter &append( const char *name ) {
-				v_emitter.builder.endField( name );
+				v_emitter.endField( name );
 				return v_emitter;
 			}
 
@@ -239,6 +248,10 @@ void operator>>( const mongo::BSONObj &bobj, std::map<std::string,V> &map ) {
 		return (*pEmitter);
 	}
 
+	inline BSONEmitter &BSONValueEmitter::append( const OID &t ) {
+		pEmitter->builder->append( fieldName, t );
+		return (*pEmitter);
+	}
 
 
 	class BSONArrayEmitter {
@@ -290,6 +303,10 @@ void operator>>( const mongo::BSONObj &bobj, std::map<std::string,V> &map ) {
 				return *this;
 			}
 
+			BSONArrayEmitter &append(	const OID &t ) {
+				builder.append( t );
+				return *this;
+			}
 
 			BSONArray arr() {
 				return builder.arr();
