@@ -194,6 +194,17 @@ class TestIn : public CxxTest::TestSuite {
 		// The following tests just stream into and then out of bson to check
 		// if we get the same back as we put into (above tests all specifically
 		// test the bson itself that is the step in the middle
+		void testIntConversion() {
+			mongo::BSONEmitter bbuild;
+			bbuild << "a" << 1;
+			bbuild << "b" << -1;
+			auto obj = bbuild.obj();
+			size_t t;
+			TS_ASSERT_THROWS_NOTHING(	obj["a"] >> t ); // can be converted
+			TS_ASSERT_THROWS_ANYTHING(	obj["b"] >> t ); // cannot be converted
+		}
+
+
 		void testTestClassTest2() {
 			mongo::BSONEmitter bbuild;
 			test2 t = test2();

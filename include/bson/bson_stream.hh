@@ -27,9 +27,12 @@ void operator>>( const mongo::BSONElement &bel, T &t ) {
 
 void operator>>( const mongo::BSONElement &bel, size_t &t );
 inline void operator>>( const mongo::BSONElement &bel, size_t &t ) {
-	long long cpy;
-	bel.Val( cpy );
-	t = (size_t) cpy;
+	long long cpy = bel.number();
+	//bel.Val( cpy );
+	if (cpy>=0)
+		t = (size_t) cpy;
+	else
+		throw MsgAssertionException(0, "Trying to convert negative number to size_t");
 }
 
 template<class T>
