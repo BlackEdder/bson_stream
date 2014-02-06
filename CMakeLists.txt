@@ -36,25 +36,26 @@ install (FILES include/bson/bson_stream.hh
 	DESTINATION include/bson)
 
 # Tests
-find_package(CxxTest)
-if(CXXTEST_FOUND)
-	if(NOT MONGO)
-		message( WARNING "Could not find mongoclient library. 
-		Will not compile the tests" )
-	endif()
+if (CMAKE_BUILD_TYPE MATCHES Debug)
+	find_package(CxxTest)
+	if(CXXTEST_FOUND)
+		if(NOT MONGO)
+			message( WARNING "Could not find mongoclient library. 
+			Will not compile the tests" )
+		endif()
 
 
-	if (MONGO)
-		enable_testing()
-		CXXTEST_ADD_TEST(unittest_stream_out test_stream_out.cc
-			include/bson/bson_stream.hh
-			${CMAKE_CURRENT_SOURCE_DIR}/tests/test_stream_out.hh)
-		target_link_libraries( unittest_stream_out ${LIBS}; )
+		if (MONGO)
+			enable_testing()
+			CXXTEST_ADD_TEST(unittest_stream_out test_stream_out.cc
+				include/bson/bson_stream.hh
+				${CMAKE_CURRENT_SOURCE_DIR}/tests/test_stream_out.hh)
+			target_link_libraries( unittest_stream_out ${LIBS}; )
 
-		CXXTEST_ADD_TEST(unittest_stream_in test_stream_in.cc
-			include/bson/bson_stream.hh
-			${CMAKE_CURRENT_SOURCE_DIR}/tests/test_stream_in.hh)
-		target_link_libraries( unittest_stream_in ${LIBS}; )
+			CXXTEST_ADD_TEST(unittest_stream_in test_stream_in.cc
+				include/bson/bson_stream.hh
+				${CMAKE_CURRENT_SOURCE_DIR}/tests/test_stream_in.hh)
+			target_link_libraries( unittest_stream_in ${LIBS}; )
+		endif()
 	endif()
 endif()
-
