@@ -1,9 +1,0 @@
-**** Installation ****
-bson_stream uses cmake for building tests. You can install it by running
-cmake .
-make install
-
-Alternatively, you can just copy the header file (bson_stream.hh) to a location of your choosing.
-
-For some simple examples see:
-http://gitorious.org/bson_stream/pages/Home
